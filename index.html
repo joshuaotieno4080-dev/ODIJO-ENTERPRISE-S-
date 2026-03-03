@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Odijo Enterprise</title>
+<style>
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background: black;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: scale(1.03);
+}
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+button {
+  background: green;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: darkgreen;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Odijo Enterprise</h1>
+<p>Quality Products at Affordable Prices (KES)</p>
+</header>
+
+<div class="products" id="products"></div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyYfmEBEOIU8fvlm-K1BvbSokHjn4Ld-Ocs3tNWx_CEL2DykeNjVSZ1nFZu7yyvlC99/exec";
+
+fetch(API_URL)
+.then(res => res.json())
+.then(data => {
+  const container = document.getElementById("products");
+  data.forEach(product => {
+    container.innerHTML += `
+      <div class="card">
+        <img src="${product.image}" />
+        <h3>${product.name}</h3>
+        <p>KES ${product.price}</p>
+        <p>${product.description}</p>
+        <button onclick="order('${product.name}', '${product.price}')">
+          Order on WhatsApp
+        </button>
+      </div>
+    `;
+  });
+});
+
+function order(name, price) {
+  const message = `Hello, I want to order ${name} at KES ${price}`;
+  const whatsappURL = `https://wa.me/254700238274?text=${encodeURIComponent(message)}`;
+  window.open(whatsappURL, "_blank");
+}
+</script>
+
+</body>
+</html>
