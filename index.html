@@ -4,26 +4,120 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Odijo Enterprise</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background: #333; color: #fff;
+      padding: 1rem; text-align: center;
+    }
+    nav {
+      margin-top: 10px;
+    }
+    .category-btn {
+      margin: 0 5px; padding: 5px 10px;
+      cursor: pointer; background: #555;
+      color: #fff; border: none; border-radius: 5px;
+    }
+    .category-btn:hover { background: #777; }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px; padding: 20px;
+    }
+    .product {
+      background: #fff; padding: 10px;
+      border-radius: 8px; text-align: center;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .product img {
+      width: 100%; height: 200px;
+      object-fit: cover; border-radius: 5px;
+    }
+    .product h2 { font-size: 1.2rem; margin: 10px 0 5px; }
+    .product p { margin: 5px 0; font-weight: bold; }
+    .whatsapp-btn {
+      display: inline-block; padding: 5px 10px;
+      background: #25D366; color: #fff;
+      border-radius: 5px; text-decoration: none;
+      margin-top: 5px;
+    }
+    footer { text-align: center; padding: 10px; background: #333; color: #fff; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Odijo Enterprise</h1>
-    <nav>
-      <button class="category-btn" data-category="Bitepoint">Bitepoint</button>
-      <button class="category-btn" data-category="Clothes">Clothes</button>
-      <button class="category-btn" data-category="Shoes">Shoes</button>
-    </nav>
-  </header>
 
-  <main>
-    <div id="products" class="products-grid"></div>
-  </main>
+<header>
+  <h1>Odijo Enterprise</h1>
+  <nav>
+    <button class="category-btn" data-category="Bitepoint">Bitepoint</button>
+    <button class="category-btn" data-category="Clothes">Clothes</button>
+    <button class="category-btn" data-category="Shoes">Shoes</button>
+  </nav>
+</header>
 
-  <footer>
-    <p>&copy; Odijo Enterprise | Developed by Joshua Otieno</p>
-  </footer>
+<main>
+  <div id="products" class="products-grid"></div>
+</main>
 
-  <script src="script.js"></script>
+<footer>
+  <p>&copy; Odijo Enterprise | Developed by Joshua Otieno</p>
+</footer>
+
+<script>
+  // CONFIG: Replace these
+  const sheetID = "https://script.google.com/macros/s/AKfycbyYfmEBEOIU8fvlm-K1BvbSokHjn4Ld-Ocs3tNWx_CEL2DykeNjVSZ1nFZu7yyvlC99/exec";
+  const sheetName = "odijo enterprise";
+  const whatsappNumber = "254700 238274"; // your WhatsApp number
+
+  const productsContainer = document.getElementById("products");
+  let allProducts = [];
+
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+  fetch(url)
+    .then(res => res.text())
+    .then(data => {
+      const jsonData = JSON.parse(data.substr(47).slice(0, -2));
+      const rows = jsonData.table.rows;
+
+      allProducts = rows.map(row => ({
+        name: row.c[0]?.v || "No Name",    // Column 1 = Name
+        price: row.c[1]?.v || "0",         // Column 2 = Price
+        image: row.c[2]?.v || "",          // Column 3 = Image URL
+        category: row.c[3]?.v || "Other"   // Column 4 = Category
+      }));
+
+      displayProducts("Bitepoint"); // default category
+    })
+    .catch(err => console.error("Error fetching products:", err));
+
+  function displayProducts(category) {
+    productsContainer.innerHTML = "";
+    allProducts
+      .filter(p => p.category === category)
+      .forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product";
+        card.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <h2>${p.name}</h2>
+          <p>Ksh ${p.price}</p>
+          <a class="whatsapp-btn" href="https://wa.me/${whatsappNumber}?text=Hi,%20I%20want%20to%20order%20${encodeURIComponent(p.name)}" target="_blank">Order via WhatsApp</a>
+        `;
+        productsContainer.appendChild(card);
+      });
+  }
+
+  document.querySelectorAll(".category-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      displayProducts(btn.dataset.category);
+    });
+  });
+</script>
+
 </body>
 </html>
